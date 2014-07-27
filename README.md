@@ -34,7 +34,7 @@ With "-ipv4only=true" option cloudflareddns will update only IPv4 address.
 4. ```go build -o cloudflareddns main.go```
 5. cloudflareddns ready to use
 
-If run on Windows then use
+Step 4 for Windows:
 ```
 go build -o cloudflareddns.exe main.go
 ```
