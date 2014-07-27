@@ -26,6 +26,11 @@ Grab latest release from [here][3] or [build cloudflareddns from sources](#build
 
 Thats it. Now your local web server will be available via web browser by http://mysubdomain.domain.com
 With "-ipv4only=true" option cloudflareddns will update only IPv4 address.
+Use cron to run cloudflareddns periodicaly. For example, every hour:
+```
+crontab -e
+0 * * * * /path/to/cloudflareddns arguments
+```
 
 ###Building from source
 1. Install [golang][4]
