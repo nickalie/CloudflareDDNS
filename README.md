@@ -25,15 +25,49 @@ Grab latest release from [here][3] or [build cloudflareddns from sources](#build
 ./cloudflareddns -token=api_key_from_account_settings -email=email_from_account_settings -domains=mysubdomain.domain.com
 ```
 
-Thats it. Now your local web server will be available via web browser by http://mysubdomain.domain.com
+That's it. Now your local web server will be available via web browser by http://mysubdomain.domain.com
 With "-ipv4only=true" option cloudflareddns will update only IPv4 address.
-"domains" could contain several comma-separated domains
+"domains" could contain several comma-separated domains.
+Or you can create config.json file near cloudflareddns and specify all arguments there
+
+```
+{
+  "token":"api_key_from_account_settings",
+  "email":"email_from_account_settings",
+  "domains":[
+    "sub1.domain.com",
+    "sub2.anotherdomain.com"
+  ]
+}
+```
 
 Use cron to run cloudflareddns periodicaly. For example, every hour:
 ```
 crontab -e
 0 * * * * /path/to/cloudflareddns arguments
 ```
+To use cloudflareddns with runit, supervisord or init.d there is "interval" argument:
+
+```
+./cloudflareddns -token=api_key_from_account_settings -email=email_from_account_settings -domains=mysubdomain.domain.com -interval=30
+```
+
+or
+
+```
+{
+  "token":"api_key_from_account_settings",
+  "email":"email_from_account_settings",
+  "domains":[
+    "sub1.domain.com",
+    "sub2.anotherdomain.com"
+  ],
+  "interval":30
+}
+```
+
+It means cloudflareddns will run "infinitely" and update IPs every 30 minutes.
+
 
 ###Building from source
 1. Install [golang][4]
