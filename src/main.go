@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"./ng"
 	"strings"
@@ -10,20 +9,13 @@ import (
 var api ng.Api
 
 func main() {
-	config := ng.Config{}
+	config, err := ng.NewConfig()
 
-	flag.StringVar(&(config.Token), "token", "", "API Key from cloudflare.com account settings")
-	flag.StringVar(&(config.Email), "email", "", "email from cloudflare.com account settings")
-	flag.StringVar(&(config.Domain), "domain", "", "domain you'd like to update. For instance, sub.example.com or example.com")
-	var ipv4Only bool
-	flag.BoolVar(&ipv4Only, "ipv4only", false, "set this flag to true if you want to use only IPv4")
-	flag.Parse()
-
-	if !config.Validate() {
+	if err != nil {
 		return
 	}
 
-	ip, ipType := getIP(ipv4Only)
+	ip, ipType := getIP(config.IPv4Only)
 
 	if ip == "" {
 		fmt.Println("Unable to detect any type of IP. Probably there is no internet connection.")

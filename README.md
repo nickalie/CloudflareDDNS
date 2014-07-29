@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/nickalie/CloudflareDDNS.svg?branch=Config-file-support)](https://travis-ci.org/nickalie/CloudflareDDNS)
 Cloudflare Dynamic DNS Client
 ==============
 
