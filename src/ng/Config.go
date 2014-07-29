@@ -13,8 +13,9 @@ import (
 type Config struct {
 	Token    string
 	Email    string
-	Domain   string
+	Domains  []string
 	IPv4Only bool
+	Interval int
 }
 
 func NewConfig() (Config, error) {
@@ -34,11 +35,16 @@ func NewConfig() (Config, error) {
 }
 
 func (this *Config) readFlags() {
+	var domains string
 	flag.StringVar(&(this.Token), "token", "", "API Key from cloudflare.com account settings")
 	flag.StringVar(&(this.Email), "email", "", "email from cloudflare.com account settings")
-	flag.StringVar(&(this.Domain), "domain", "", "domain you'd like to update. For instance, sub.example.com or example.com")
+	flag.StringVar(&domains, "domains", "", "domain you'd like to update. For instance, sub.example.com or example.com")
 	flag.BoolVar(&(this.IPv4Only), "ipv4only", false, "set this flag to true if you want to use only IPv4")
+	flag.IntVar(&(this.Interval), "interval", 0, "interval in minutes between updates. If 0 update processed once.")
 	flag.Parse()
+
+	domains = strings.TrimSpace(domains)
+	this.Domains = strings.Split(domains, ",")
 }
 
 func (this *Config) readConfigFile() {
@@ -72,10 +78,18 @@ func (this *Config) validate() bool {
 		message += "Please provide email\n"
 	}
 
-	if this.Domain == "" {
-		message += "Please provide domain\n"
-	} else if (len(strings.Split(this.Domain, ".")) < 2) {
-		message += "Please provide valid domain\n"
+	if len(this.Domains) == 0 {
+		message += "Please provide at least one domain name\n"
+	}
+
+	for index, domain := range this.Domains {
+		if domain == "" {
+			message += "One of the domain name is empty\n"
+			this.Domains = append(this.Domains[:index], this.Domains[index+1:]...)
+		} else if (len(strings.Split(domain, ".")) < 2) {
+			message += "Domain " + domain + " is invalid\n"
+			this.Domains = append(this.Domains[:index], this.Domains[index+1:]...)
+		}
 	}
 
 	if message == "" {

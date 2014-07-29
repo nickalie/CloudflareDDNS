@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"./ng"
 	"strings"
+	"time"
 )
 
 var api ng.Api
@@ -28,15 +29,37 @@ func main() {
 		fmt.Println("IPv4 detected: ", ip)
 	}
 
-	subDomains := strings.Split(config.Domain, ".")
+	api = ng.NewApi(config)
+	updateDomains(config.Domains, ip, ipType)
+
+	if config.Interval > 0 {
+
+		ticker := time.NewTicker(time.Minute * time.Duration(config.Interval)).C
+
+		for {
+			select {
+			case <-ticker:
+				updateDomains(config.Domains, ip, ipType)
+			}
+		}
+	}
+}
+
+func updateDomains(domains []string, ip string, ipType string) {
+	for _, domain := range domains {
+		updateDomain(domain, ip, ipType)
+	}
+}
+
+func updateDomain(domain string, ip string, ipType string) {
+	subDomains := strings.Split(domain, ".")
 	var rootDomain string
 	if len(subDomains) == 2 {
-		rootDomain = config.Domain
+		rootDomain = domain
 	} else {
 		rootDomain = strings.Join(subDomains[len(subDomains)-2:], ".")
 	}
 
-	api = ng.NewApi(config)
 	result, err := api.RecLoadAll(rootDomain)
 
 	if err != nil {
@@ -47,24 +70,24 @@ func main() {
 	var obj ng.ObjVO
 
 	for _, v := range result.GetObjs() {
-		if v.GetName() == config.Domain && v.GetType() == ipType {
+		if v.GetName() == domain && v.GetType() == ipType {
 			obj = v
 			break;
 		}
 	}
 
 	if obj == nil {
-		fmt.Println("Domain", config.Domain, "with Type", ipType, "doesn't exist. Creating...")
-		obj, err = api.RecNew(rootDomain, config.Domain, ip, ipType)
+		fmt.Println("Domain", domain, "with Type", ipType, "doesn't exist. Creating...")
+		obj, err = api.RecNew(rootDomain, domain, ip, ipType)
 		if err != nil {
-			fmt.Println("Error while creating", config.Domain, ":", err)
+			fmt.Println("Error while creating", domain, ":", err)
 			return
 		}
-		fmt.Println("Domain", config.Domain, "was created")
+		fmt.Println("Domain", domain, "was created")
 	}
 
 	if obj.GetContent() != ip || obj.GetType() != ipType || obj.GetServiceMode() != 1 {
-		fmt.Println("Updating", config.Domain, "IP")
+		fmt.Println("Updating", domain, "IP")
 		err = api.RecEdit(rootDomain, obj.GetName(), obj.GetRecID(), ip, ipType)
 		if err != nil {
 			fmt.Println("Error while updating domain info:", err)
@@ -72,7 +95,7 @@ func main() {
 			fmt.Println("Domain IP was updated")
 		}
 	} else {
-		fmt.Println("Domain is up to date")
+		fmt.Println("Domain", domain, "is up to date")
 	}
 }
 
