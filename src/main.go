@@ -16,7 +16,25 @@ func main() {
 		return
 	}
 
-	ip, ipType := getIP(config.IPv4Only)
+	api = ng.NewApi(config)
+	updateDomains(config.Domains, config.IPv4Only)
+
+	if config.Interval > 0 {
+
+		ticker := time.NewTicker(time.Minute * time.Duration(config.Interval)).C
+
+		for {
+			select {
+			case <-ticker:
+				updateDomains(config.Domains, config.IPv4Only)
+			}
+		}
+	}
+}
+
+func updateDomains(domains []string, IPv4Only bool) {
+
+	ip, ipType := getIP(IPv4Only)
 
 	if ip == "" {
 		fmt.Println("Unable to detect any type of IP. Probably there is no internet connection.")
@@ -29,23 +47,6 @@ func main() {
 		fmt.Println("IPv4 detected: ", ip)
 	}
 
-	api = ng.NewApi(config)
-	updateDomains(config.Domains, ip, ipType)
-
-	if config.Interval > 0 {
-
-		ticker := time.NewTicker(time.Minute * time.Duration(config.Interval)).C
-
-		for {
-			select {
-			case <-ticker:
-				updateDomains(config.Domains, ip, ipType)
-			}
-		}
-	}
-}
-
-func updateDomains(domains []string, ip string, ipType string) {
 	for _, domain := range domains {
 		updateDomain(domain, ip, ipType)
 	}
