@@ -46,7 +46,7 @@ Use cron to run cloudflareddns periodicaly. For example, every hour:
 crontab -e
 0 * * * * /path/to/cloudflareddns arguments
 ```
-To use cloudflareddns with runit, supervisord or init.d there is "interval" argument:
+To use cloudflareddns with [runit][5], [supervisord][6] or another process control system there is "interval" argument:
 
 ```
 ./cloudflareddns -token=api_key_from_account_settings -email=email_from_account_settings -domains=mysubdomain.domain.com -interval=30
@@ -86,3 +86,5 @@ go build -o cloudflareddns.exe main.go
   [2]: http://en.wikipedia.org/wiki/Teredo_tunneling
   [3]: https://github.com/nickalie/CloudflareDDNS/releases
   [4]: http://golang.org/
+  [5]: http://smarden.org/runit/
+  [6]: http://supervisord.org/
